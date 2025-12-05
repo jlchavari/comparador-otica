@@ -1,164 +1,235 @@
 import streamlit as st
 import pandas as pd
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(layout="wide", page_title="Comparador Óptico")
+# --- CONFIGURAÇÃO DA PÁGINA (WIDE MODE) ---
+st.set_page_config(layout="wide", page_title="Comparador Óptico Pro", page_icon="👓")
 
-# --- CSS PARA ESTILO VISUAL ---
+# ==========================================
+# ⚙️ CONFIGURAÇÕES GERAIS
+# ==========================================
+# COLE O LINK DA SUA PLANILHA AQUI DENTRO DAS ASPAS:
+URL_DA_SUA_PLANILHA = "https://docs.google.com/spreadsheets/d/1Zx1X9OwPiFYpsanXPzdCH9A919Brek7txZjiXz1m4Tk/edit?gid=0#gid=0"
+
+# --- CSS PERSONALIZADO (DESIGN) ---
 st.markdown("""
 <style>
-    .metric-card {background-color: #f0f2f6; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;}
-    .lens-title {color: #2E86C1; font-size: 24px; font-weight: bold;}
+    /* Fundo geral mais limpo */
+    .main {background-color: #f8f9fa;}
+    
+    /* Estilo dos Títulos das Lentes */
+    .lens-header {
+        color: #154c79;
+        font-size: 28px;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #154c79;
+    }
+    
+    /* Cards brancos para as lentes */
+    .lens-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    /* Destaque para o Diferencial */
+    .benefit-box {
+        background-color: #e3f2fd;
+        color: #0d47a1;
+        padding: 10px;
+        border-radius: 8px;
+        border-left: 5px solid #2196f3;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    
+    /* Preço Grande */
+    .price-tag {
+        font-size: 32px;
+        color: #2e7d32;
+        font-weight: bold;
+        text-align: center;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- FUNÇÃO DE CARREGAMENTO CORRIGIDA ---
+# ==========================================
+# 🛠️ FUNÇÕES DO SISTEMA
+# ==========================================
+
 @st.cache_data(ttl=60)
 def load_data(sheet_url):
-    # 1. Verifica se é um link do Google
-    if "docs.google.com/spreadsheets" not in sheet_url:
-        st.error("Erro: O link não parece ser do Google Sheets.")
-        st.stop()
-    
-    # 2. Transforma qualquer link de visualização em link de exportação CSV
-    # A lógica aqui é: pega tudo antes de "/edit" e adiciona "/export?format=csv"
-    try:
-        base_url = sheet_url.split("/edit")[0]
-        csv_url = f"{base_url}/export?format=csv"
+    # Lógica de proteção contra link vazio
+    if not sheet_url or "google" not in sheet_url:
+        return None
         
-        # Lê o CSV
+    try:
+        # Tratamento do Link para CSV
+        if "/edit" in sheet_url:
+            base_url = sheet_url.split("/edit")[0]
+            csv_url = f"{base_url}/export?format=csv"
+        else:
+            csv_url = sheet_url
+            
         return pd.read_csv(csv_url)
     except Exception as e:
-        st.error(f"Erro ao processar o link. Detalhe: {e}")
-        st.stop()
-# --- SIDEBAR: LOGIN E CONFIGURAÇÃO ---
-st.sidebar.title("🔐 Acesso")
-senha = st.sidebar.text_input("Digite sua senha", type="password")
+        st.error(f"Erro de conexão: {e}")
+        return None
+
+# Função auxiliar para mostrar imagem com segurança
+def mostrar_imagem(url_imagem):
+    if pd.notna(url_imagem) and str(url_imagem).startswith("http"):
+        try:
+            st.image(url_imagem, use_container_width=True)
+        except:
+            st.warning("⚠️ Imagem indisponível")
+    else:
+        # Placeholder (Espaço vazio elegante se não tiver imagem)
+        st.markdown("<div style='height:200px; background-color:#eee; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#999;'>Sem Imagem</div>", unsafe_allow_html=True)
+
+# ==========================================
+# 🔐 BARRA LATERAL (LOGIN)
+# ==========================================
+st.sidebar.title("🔐 Acesso Restrito")
+senha = st.sidebar.text_input("Senha de Acesso", type="password")
 
 nivel_acesso = None
 
-# DEFINA SUAS SENHAS AQUI
 if senha == "admin123":
     nivel_acesso = "admin"
-    st.sidebar.success("Modo Administrador (Custos Visíveis)")
+    st.sidebar.success("✅ Modo Administrador")
 elif senha == "venda2025":
     nivel_acesso = "vendedor"
-    st.sidebar.info("Modo Vendedor (Apenas Venda)")
+    st.sidebar.info("👤 Modo Vendedor")
 else:
-    st.warning("Por favor, faça login para acessar.")
-    st.stop() # Para o código aqui se não tiver senha
-
-# --- CARREGAMENTO DA PLANILHA ---
-# Substitua este link pelo link da SUA planilha (tem que estar pública para leitura ou configurar secrets depois)
-# Para testar rápido: Deixe sua planilha como "Qualquer pessoa com o link pode ver"
-sheet_url = st.text_input("Cole o Link da sua Planilha Google aqui (ou fixe no código):")
-
-if not sheet_url:
-    st.info("Cole o link da planilha acima para começar.")
+    st.warning("🔒 Faça login para iniciar o sistema.")
     st.stop()
 
-# ... trecho anterior do código ...
-try:
-    df = load_data(sheet_url)
-    
-    # ADICIONE ESTAS LINHAS AQUI PARA TESTE:
-#    st.write("👀 Espiando os dados que chegaram:")
-#   st.write(df.head()) # Mostra as 5 primeiras linhas
- #   st.write(df.columns) # Mostra os nomes das colunas que o Python leu
-    
-except:
-    # ... resto do código ...
-    st.error("Erro ao ler a planilha. Verifique se o link está correto e se o compartilhamento está público.")
-    st.stop()
+# ==========================================
+# 🚀 APLICATIVO PRINCIPAL
+# ==========================================
 
+# Carrega os dados (Usando o link fixo ou um campo de backup)
+df = load_data(URL_DA_SUA_PLANILHA)
+
+if df is None:
+    st.error("⚠️ Configure o link da planilha no código (variável URL_DA_SUA_PLANILHA)")
+    novo_link = st.text_input("Ou cole um link temporário aqui:")
+    if novo_link:
+        df = load_data(novo_link)
+    else:
+        st.stop()
+
+# Cabeçalho do Site
 st.title("👓 Comparador de Lentes")
 st.markdown("---")
 
-# --- SELEÇÃO DA LENTE PRINCIPAL (ESQUERDA) ---
-col1, col2 = st.columns(2)
+col1, col_div, col2 = st.columns([1, 0.1, 1]) # Cria uma coluna fininha no meio para separar
 
+# --- COLUNA ESQUERDA: LENTE PRINCIPAL ---
 with col1:
-    st.header("Lente Referência")
+    st.markdown("<div class='lens-card'>", unsafe_allow_html=True) # Início do Card Visual
     
-   # Filtros em cascata
-    marca_1 = st.selectbox("Selecione a Marca", df['Marca'].unique())
+    st.markdown("<div class='lens-header'>Lente Referência</div>", unsafe_allow_html=True)
     
-    df_marca_1 = df[df['Marca'] == marca_1]
-    material_1 = st.selectbox("Selecione o Material", df_marca_1['Material'].unique())
+    # Filtros (Agora mais limpos)
+    c1, c2 = st.columns(2)
+    with c1:
+        marca_1 = st.selectbox("Marca", df['Marca'].unique())
+    with c2:
+        df_marca_1 = df[df['Marca'] == marca_1]
+        material_1 = st.selectbox("Material", df_marca_1['Material'].unique())
     
-    # LINHA CORRIGIDA ABAIXO:
     df_material_1 = df_marca_1[df_marca_1['Material'] == material_1]
+    tratamento_1 = st.selectbox("Tratamento", df_material_1['Tratamento'].unique())
     
-    tratamento_1 = st.selectbox("Selecione o Tratamento", df_material_1['Tratamento'].unique())
-    
-    # Localiza a linha exata da lente escolhida
-    lente_1 = df_material_1[df_material_1['Tratamento'] == tratamento_1].iloc[0]
-    
-    # --- EXIBIÇÃO LADO ESQUERDO ---
-    st.markdown(f"<div class='lens-title'>{lente_1['Nome']}</div>", unsafe_allow_html=True)
-    
-    # Imagem com proteção contra erros
-    imagem_url = lente_1['Imagem']
-    if pd.notna(imagem_url) and str(imagem_url).startswith("http"):
-        try:
-            st.image(imagem_url, use_container_width=True)
-        except:
-            st.warning("⚠️ Erro ao carregar imagem (Link inválido)")
-    else:
-        st.info("Sem imagem cadastrada")
-    
-    # Preços
-    st.metric(label="Preço de Venda", value=f"R$ {lente_1['Preco_Venda']}")
-    
-    if nivel_acesso == "admin":
-        st.markdown(f"🔒 **Custo:** R$ {lente_1['Preco_Custo']}")
+    # Pega os dados
+    try:
+        lente_1 = df_material_1[df_material_1['Tratamento'] == tratamento_1].iloc[0]
+        
+        # Nome Grande
+        st.markdown(f"### {lente_1['Nome']}")
+        
+        # Imagem
+        mostrar_imagem(lente_1['Imagem'])
+        
+        # Diferencial
+        st.markdown(f"<div class='benefit-box'>⭐ {lente_1['Beneficios']}</div>", unsafe_allow_html=True)
+        st.write("") # Espaço
+        
+        # Preço
+        st.caption("Preço de Venda Sugerido:")
+        st.markdown(f"<div class='price-tag'>R$ {lente_1['Preco_Venda']}</div>", unsafe_allow_html=True)
+        
+        if nivel_acesso == "admin":
+            st.error(f"🔒 Custo: R$ {lente_1['Preco_Custo']}")
+            
+    except IndexError:
+        st.warning("Combinação não encontrada.")
+        st.stop()
+        
+    st.markdown("</div>", unsafe_allow_html=True) # Fim do Card
 
-
-# --- SELEÇÃO DA LENTE CONCORRENTE (DIREITA) ---
+# --- COLUNA DIREITA: CONCORRENTE ---
 with col2:
-    st.header("Comparativo / Concorrente")
+    st.markdown("<div class='lens-card'>", unsafe_allow_html=True) # Início do Card Visual
     
-    # A MÁGICA: Filtra apenas lentes do mesmo GRUPO da lente 1
+    st.markdown("<div class='lens-header'>Concorrente</div>", unsafe_allow_html=True)
+    
+    # Lógica de Busca Automática
     grupo_alvo = lente_1['Grupo']
     df_concorrentes = df[(df['Grupo'] == grupo_alvo) & (df['Nome'] != lente_1['Nome'])]
     
     if df_concorrentes.empty:
-        st.warning("Não encontrei concorrentes diretos cadastrados neste grupo.")
+        st.info("💡 Nenhuma concorrente direta cadastrada neste grupo.")
+        lente_2 = None
     else:
-        # Cria uma lista de nomes amigáveis para escolher
-        lista_concorrentes = df_concorrentes.apply(lambda x: f"{x['Marca']} - {x['Nome']} ({x['Material']})", axis=1)
-        escolha_concorrente = st.selectbox("Escolha com quem comparar:", lista_concorrentes)
+        # Selectbox Inteligente
+        lista_opcoes = df_concorrentes.apply(lambda x: f"{x['Marca']} - {x['Nome']}", axis=1)
+        escolha = st.selectbox("Comparar com:", lista_opcoes)
         
-        # Pega os dados da escolha
-        # (Lógica simples para recuperar a linha baseada na seleção)
-        marca_sel = escolha_concorrente.split(" - ")[0]
-        lente_2 = df_concorrentes[df_concorrentes.apply(lambda x: f"{x['Marca']} - {x['Nome']} ({x['Material']})", axis=1) == escolha_concorrente].iloc[0]
-
-        # --- EXIBIÇÃO LADO DIREITO ---
-        st.markdown(f"<div class='lens-title'>{lente_2['Nome']}</div>", unsafe_allow_html=True)
+        # Recupera os dados da escolha
+        # (Truque para pegar a linha certa baseada no texto do selectbox)
+        idx_escolhido = df_concorrentes.apply(lambda x: f"{x['Marca']} - {x['Nome']}", axis=1).values.tolist().index(escolha)
+        lente_2 = df_concorrentes.iloc[idx_escolhido]
         
-        # Imagem com proteção contra erros
-    imagem_url = lente_2['Imagem']
-    if pd.notna(imagem_url) and str(imagem_url).startswith("http"):
-        try:
-            st.image(imagem_url, use_container_width=True)
-        except:
-            st.warning("⚠️ Erro ao carregar imagem (Link inválido)")
-    else:
-        st.info("Sem imagem cadastrada")
-            
-        st.success(f"**Diferencial:** {lente_2['Beneficios']}")
+        # Exibição
+        st.markdown(f"### {lente_2['Nome']}")
         
-        st.metric(label="Preço de Venda", value=f"R$ {lente_2['Preco_Venda']}")
+        mostrar_imagem(lente_2['Imagem'])
+        
+        st.markdown(f"<div class='benefit-box'>✅ {lente_2['Beneficios']}</div>", unsafe_allow_html=True)
+        st.write("")
+        
+        st.caption("Preço de Venda Sugerido:")
+        st.markdown(f"<div class='price-tag'>R$ {lente_2['Preco_Venda']}</div>", unsafe_allow_html=True)
         
         if nivel_acesso == "admin":
-            st.markdown(f"🔒 **Custo:** R$ {lente_2['Preco_Custo']}")
+            st.error(f"🔒 Custo: R$ {lente_2['Preco_Custo']}")
 
-# --- RODAPÉ ---
+    st.markdown("</div>", unsafe_allow_html=True) # Fim do Card
+
+# ==========================================
+# 📊 TABELA COMPARATIVA TÉCNICA (NOVIDADE)
+# ==========================================
+if lente_2 is not None:
+    st.markdown("### 🔍 Comparativo Técnico")
+    
+    # Cria um Dataframe só para visualização limpa
+    dados_comparacao = {
+        "Característica": ["Marca", "Material (Índice)", "Tratamento", "Grupo de Performance"],
+        f"{lente_1['Nome']}": [lente_1['Marca'], lente_1['Material'], lente_1['Tratamento'], lente_1['Grupo']],
+        f"{lente_2['Nome']}": [lente_2['Marca'], lente_2['Material'], lente_2['Tratamento'], lente_2['Grupo']]
+    }
+    
+    df_compare = pd.DataFrame(dados_comparacao)
+    
+    # Mostra tabela sem o índice numérico lateral
+    st.table(df_compare.set_index("Característica"))
+
+# Rodapé
 st.markdown("---")
-st.caption("Sistema Interno de Comparação - Mercadão dos Óculos (Uso Exclusivo)")
-
-
-
-
-
+st.caption("Sistema de Apoio à Venda - Uso Exclusivo MDO Botucatu e Jaú")
