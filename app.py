@@ -97,13 +97,15 @@ with col1:
     # --- EXIBIÇÃO LADO ESQUERDO ---
     st.markdown(f"<div class='lens-title'>{lente_1['Nome']}</div>", unsafe_allow_html=True)
     
-    # Imagem
-    if pd.notna(lente_1['Imagem']):
-        st.image(lente_1['Imagem'], use_container_width=True)
+    # Imagem com proteção contra erros
+    imagem_url = lente_1['Imagem']
+    if pd.notna(imagem_url) and str(imagem_url).startswith("http"):
+        try:
+            st.image(imagem_url, use_container_width=True)
+        except:
+            st.warning("⚠️ Erro ao carregar imagem (Link inválido)")
     else:
-        st.warning("Sem imagem cadastrada")
-        
-    st.info(f"**Diferencial:** {lente_1['Beneficios']}")
+        st.info("Sem imagem cadastrada")
     
     # Preços
     st.metric(label="Preço de Venda", value=f"R$ {lente_1['Preco_Venda']}")
@@ -135,10 +137,15 @@ with col2:
         # --- EXIBIÇÃO LADO DIREITO ---
         st.markdown(f"<div class='lens-title'>{lente_2['Nome']}</div>", unsafe_allow_html=True)
         
-        if pd.notna(lente_2['Imagem']):
-            st.image(lente_2['Imagem'], use_container_width=True)
-        else:
-            st.warning("Sem imagem cadastrada")
+        # Imagem com proteção contra erros
+    imagem_url = lente_2['Imagem']
+    if pd.notna(imagem_url) and str(imagem_url).startswith("http"):
+        try:
+            st.image(imagem_url, use_container_width=True)
+        except:
+            st.warning("⚠️ Erro ao carregar imagem (Link inválido)")
+    else:
+        st.info("Sem imagem cadastrada")
             
         st.success(f"**Diferencial:** {lente_2['Beneficios']}")
         
@@ -150,6 +157,7 @@ with col2:
 # --- RODAPÉ ---
 st.markdown("---")
 st.caption("Sistema Interno de Comparação - Mercadão dos Óculos (Uso Exclusivo)")
+
 
 
 
