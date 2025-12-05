@@ -12,14 +12,25 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- FUNÇÃO PARA CARREGAR DADOS ---
-# Aqui usamos um cache para não ficar recarregando a planilha toda hora
+# --- FUNÇÃO DE CARREGAMENTO CORRIGIDA ---
 @st.cache_data(ttl=60)
 def load_data(sheet_url):
-    # Transforma o link de visualização em link de exportação CSV
-    csv_url = sheet_url.replace("/edit#gid=", "/export?format=csv&gid=")
-    return pd.read_csv(csv_url)
-
+    # 1. Verifica se é um link do Google
+    if "docs.google.com/spreadsheets" not in sheet_url:
+        st.error("Erro: O link não parece ser do Google Sheets.")
+        st.stop()
+    
+    # 2. Transforma qualquer link de visualização em link de exportação CSV
+    # A lógica aqui é: pega tudo antes de "/edit" e adiciona "/export?format=csv"
+    try:
+        base_url = sheet_url.split("/edit")[0]
+        csv_url = f"{base_url}/export?format=csv"
+        
+        # Lê o CSV
+        return pd.read_csv(csv_url)
+    except Exception as e:
+        st.error(f"Erro ao processar o link. Detalhe: {e}")
+        st.stop()
 # --- SIDEBAR: LOGIN E CONFIGURAÇÃO ---
 st.sidebar.title("🔐 Acesso")
 senha = st.sidebar.text_input("Digite sua senha", type="password")
@@ -137,4 +148,5 @@ with col2:
 # --- RODAPÉ ---
 st.markdown("---")
 st.caption("Sistema Interno de Comparação - Mercadão dos Óculos (Uso Exclusivo)")
+
 
