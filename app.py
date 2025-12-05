@@ -62,9 +62,9 @@ try:
     df = load_data(sheet_url)
     
     # ADICIONE ESTAS LINHAS AQUI PARA TESTE:
-    st.write("👀 Espiando os dados que chegaram:")
-    st.write(df.head()) # Mostra as 5 primeiras linhas
-    st.write(df.columns) # Mostra os nomes das colunas que o Python leu
+#    st.write("👀 Espiando os dados que chegaram:")
+#   st.write(df.head()) # Mostra as 5 primeiras linhas
+ #   st.write(df.columns) # Mostra os nomes das colunas que o Python leu
     
 except:
     # ... resto do código ...
@@ -157,6 +157,7 @@ with col2:
 # --- RODAPÉ ---
 st.markdown("---")
 st.caption("Sistema Interno de Comparação - Mercadão dos Óculos (Uso Exclusivo)")
+
 
 
 
