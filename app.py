@@ -80,13 +80,15 @@ col1, col2 = st.columns(2)
 with col1:
     st.header("Lente Referência")
     
-    # Filtros em cascata
+   # Filtros em cascata
     marca_1 = st.selectbox("Selecione a Marca", df['Marca'].unique())
     
     df_marca_1 = df[df['Marca'] == marca_1]
     material_1 = st.selectbox("Selecione o Material", df_marca_1['Material'].unique())
     
-    df_material_1 = df_marca_1[df_material_1['Material'] == material_1]
+    # LINHA CORRIGIDA ABAIXO:
+    df_material_1 = df_marca_1[df_marca_1['Material'] == material_1]
+    
     tratamento_1 = st.selectbox("Selecione o Tratamento", df_material_1['Tratamento'].unique())
     
     # Localiza a linha exata da lente escolhida
@@ -148,5 +150,6 @@ with col2:
 # --- RODAPÉ ---
 st.markdown("---")
 st.caption("Sistema Interno de Comparação - Mercadão dos Óculos (Uso Exclusivo)")
+
 
 
