@@ -8,7 +8,7 @@ st.set_page_config(layout="wide", page_title="Comparador Óptico Pro", page_icon
 # ⚙️ CONFIGURAÇÕES GERAIS
 # ==========================================
 # COLE O LINK DA SUA PLANILHA AQUI DENTRO DAS ASPAS:
-URL_DA_SUA_PLANILHA = "https://docs.google.com/spreadsheets/d/SEU_LINK_AQUI/edit?usp=sharing"
+URL_DA_SUA_PLANILHA = "https://docs.google.com/spreadsheets/d/1Zx1X9OwPiFYpsanXPzdCH9A919Brek7txZjiXz1m4Tk/edit?gid=0#gid=0"
 
 # --- CSS PERSONALIZADO (DESIGN) ---
 st.markdown("""
@@ -234,3 +234,4 @@ if lente_2 is not None:
 # Rodapé
 st.markdown("---")
 st.caption("Sistema de Apoio à Venda - Uso Interno")
+
