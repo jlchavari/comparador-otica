@@ -46,9 +46,17 @@ if not sheet_url:
     st.info("Cole o link da planilha acima para começar.")
     st.stop()
 
+# ... trecho anterior do código ...
 try:
     df = load_data(sheet_url)
+    
+    # ADICIONE ESTAS LINHAS AQUI PARA TESTE:
+    st.write("👀 Espiando os dados que chegaram:")
+    st.write(df.head()) # Mostra as 5 primeiras linhas
+    st.write(df.columns) # Mostra os nomes das colunas que o Python leu
+    
 except:
+    # ... resto do código ...
     st.error("Erro ao ler a planilha. Verifique se o link está correto e se o compartilhamento está público.")
     st.stop()
 
@@ -129,3 +137,4 @@ with col2:
 # --- RODAPÉ ---
 st.markdown("---")
 st.caption("Sistema Interno de Comparação - Mercadão dos Óculos (Uso Exclusivo)")
+
