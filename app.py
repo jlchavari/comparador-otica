@@ -8,7 +8,7 @@ st.set_page_config(layout="wide", page_title="Comparador Óptico Pro", page_icon
 # ⚙️ CONFIGURAÇÕES GERAIS
 # ==========================================
 # COLE O LINK DA SUA PLANILHA AQUI DENTRO DAS ASPAS:
-URL_DA_SUA_PLANILHA = "https://docs.google.com/spreadsheets/d/1Zx1X9OwPiFYpsanXPzdCH9A919Brek7txZjiXz1m4Tk/edit?gid=0#gid=0"
+URL_DA_SUA_PLANILHA = "https://docs.google.com/spreadsheets/d/SEU_LINK_AQUI/edit?usp=sharing"
 
 # --- CSS PERSONALIZADO (DESIGN) ---
 st.markdown("""
@@ -156,7 +156,7 @@ with col1:
         # Imagem
         mostrar_imagem(lente_1['Imagem'])
         
-        # Diferencial
+        # Diferencial (Mantive aqui também para destaque visual rápido)
         st.markdown(f"<div class='benefit-box'>⭐ {lente_1['Beneficios']}</div>", unsafe_allow_html=True)
         st.write("") # Espaço
         
@@ -213,23 +213,24 @@ with col2:
     st.markdown("</div>", unsafe_allow_html=True) # Fim do Card
 
 # ==========================================
-# 📊 TABELA COMPARATIVA TÉCNICA (NOVIDADE)
+# 📊 TABELA COMPARATIVA TÉCNICA (ATUALIZADA)
 # ==========================================
 if lente_2 is not None:
     st.markdown("### 🔍 Comparativo Técnico")
     
     # Cria um Dataframe só para visualização limpa
+    # MUDANÇA AQUI: Troquei 'Grupo de Performance' por 'Principais Benefícios'
     dados_comparacao = {
-        "Característica": ["Marca", "Material (Índice)", "Tratamento", "Grupo de Performance"],
-        f"{lente_1['Nome']}": [lente_1['Marca'], lente_1['Material'], lente_1['Tratamento'], lente_1['Grupo']],
-        f"{lente_2['Nome']}": [lente_2['Marca'], lente_2['Material'], lente_2['Tratamento'], lente_2['Grupo']]
+        "Característica": ["Marca", "Material (Índice)", "Tratamento", "Principais Benefícios"],
+        f"{lente_1['Nome']}": [lente_1['Marca'], lente_1['Material'], lente_1['Tratamento'], lente_1['Beneficios']],
+        f"{lente_2['Nome']}": [lente_2['Marca'], lente_2['Material'], lente_2['Tratamento'], lente_2['Beneficios']]
     }
     
     df_compare = pd.DataFrame(dados_comparacao)
     
-    # Mostra tabela sem o índice numérico lateral
+    # Mostra tabela sem o índice numérico lateral e com largura total
     st.table(df_compare.set_index("Característica"))
 
 # Rodapé
 st.markdown("---")
-st.caption("Sistema de Apoio à Venda - Uso Exclusivo MDO Botucatu e Jaú")
+st.caption("Sistema de Apoio à Venda - Uso Interno")
