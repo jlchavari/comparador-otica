@@ -233,5 +233,6 @@ if lente_2 is not None:
 
 # Rodapé
 st.markdown("---")
-st.caption("Sistema de Apoio à Venda - Uso Interno")
+st.caption("Uso Exclusivo do MDO Botucatu e Jau")
+
 
