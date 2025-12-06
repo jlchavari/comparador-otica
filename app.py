@@ -7,7 +7,7 @@ st.set_page_config(layout="wide", page_title="Comparador Óptico Pro", page_icon
 # ==========================================
 # ⚙️ CONFIGURAÇÕES GERAIS
 # ==========================================
-# COLE O LINK DA SUA PLANILHA AQUI DENTRO DAS ASPAS:
+# SEU LINK (Mantido)
 URL_DA_SUA_PLANILHA = "https://docs.google.com/spreadsheets/d/1Zx1X9OwPiFYpsanXPzdCH9A919Brek7txZjiXz1m4Tk/edit?gid=0#gid=0"
 
 # --- CSS PERSONALIZADO (DESIGN) ---
@@ -112,7 +112,7 @@ else:
 # 🚀 APLICATIVO PRINCIPAL
 # ==========================================
 
-# Carrega os dados (Usando o link fixo ou um campo de backup)
+# Carrega os dados
 df = load_data(URL_DA_SUA_PLANILHA)
 
 if df is None:
@@ -135,18 +135,26 @@ with col1:
     
     st.markdown("<div class='lens-header'>Lente Referência</div>", unsafe_allow_html=True)
     
-    # Filtros (Agora mais limpos)
+    # === AQUI ESTÁ A CORREÇÃO (4 FILTROS) ===
+    # Linha 1: Marca e Nome
     c1, c2 = st.columns(2)
     with c1:
         marca_1 = st.selectbox("Marca", df['Marca'].unique())
-    with c2:
         df_marca_1 = df[df['Marca'] == marca_1]
-        material_1 = st.selectbox("Material", df_marca_1['Material'].unique())
+    with c2:
+        # Seleção do NOME da Lente (NOVIDADE)
+        nome_1 = st.selectbox("Modelo", df_marca_1['Nome'].unique())
+        df_nome_1 = df_marca_1[df_marca_1['Nome'] == nome_1]
+
+    # Linha 2: Material e Tratamento
+    c3, c4 = st.columns(2)
+    with c3:
+        material_1 = st.selectbox("Material", df_nome_1['Material'].unique())
+        df_material_1 = df_nome_1[df_nome_1['Material'] == material_1]
+    with c4:
+        tratamento_1 = st.selectbox("Tratamento", df_material_1['Tratamento'].unique())
     
-    df_material_1 = df_marca_1[df_marca_1['Material'] == material_1]
-    tratamento_1 = st.selectbox("Tratamento", df_material_1['Tratamento'].unique())
-    
-    # Pega os dados
+    # Pega os dados finais
     try:
         lente_1 = df_material_1[df_material_1['Tratamento'] == tratamento_1].iloc[0]
         
@@ -156,7 +164,7 @@ with col1:
         # Imagem
         mostrar_imagem(lente_1['Imagem'])
         
-        # Diferencial (Mantive aqui também para destaque visual rápido)
+        # Diferencial
         st.markdown(f"<div class='benefit-box'>⭐ {lente_1['Beneficios']}</div>", unsafe_allow_html=True)
         st.write("") # Espaço
         
@@ -192,7 +200,6 @@ with col2:
         escolha = st.selectbox("Comparar com:", lista_opcoes)
         
         # Recupera os dados da escolha
-        # (Truque para pegar a linha certa baseada no texto do selectbox)
         idx_escolhido = df_concorrentes.apply(lambda x: f"{x['Marca']} - {x['Nome']}", axis=1).values.tolist().index(escolha)
         lente_2 = df_concorrentes.iloc[idx_escolhido]
         
@@ -213,13 +220,12 @@ with col2:
     st.markdown("</div>", unsafe_allow_html=True) # Fim do Card
 
 # ==========================================
-# 📊 TABELA COMPARATIVA TÉCNICA (ATUALIZADA)
+# 📊 TABELA COMPARATIVA TÉCNICA
 # ==========================================
 if lente_2 is not None:
     st.markdown("### 🔍 Comparativo Técnico")
     
     # Cria um Dataframe só para visualização limpa
-    # MUDANÇA AQUI: Troquei 'Grupo de Performance' por 'Principais Benefícios'
     dados_comparacao = {
         "Característica": ["Marca", "Material (Índice)", "Tratamento", "Principais Benefícios"],
         f"{lente_1['Nome']}": [lente_1['Marca'], lente_1['Material'], lente_1['Tratamento'], lente_1['Beneficios']],
@@ -234,5 +240,3 @@ if lente_2 is not None:
 # Rodapé
 st.markdown("---")
 st.caption("Uso Exclusivo do MDO Botucatu e Jau")
-
-
